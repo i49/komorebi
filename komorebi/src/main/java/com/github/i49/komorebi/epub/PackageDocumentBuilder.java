@@ -6,8 +6,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.github.i49.komorebi.publication.Metadata;
+import com.github.i49.komorebi.publication.Publication;
 
-class PackageXmlBuilder {
+class PackageDocumentBuilder {
 
 	private static final String DEFAULT_NAMESPACE_URI = "http://www.idpf.org/2007/opf";
 	private static final String DC_NAMESPACE_URI = "http://purl.org/dc/elements/1.1/";
@@ -17,21 +18,21 @@ class PackageXmlBuilder {
 	private final DocumentBuilder builder;
 	private Document doc;
 	
-	PackageXmlBuilder(DocumentBuilder builder) {
+	PackageDocumentBuilder(DocumentBuilder builder) {
 		this.builder = builder;
 	}
 	
-	Document build(Metadata metadata) {
+	Document build(Publication publication) {
 		this.doc = builder.newDocument();
-		this.doc.appendChild(root(metadata));
+		this.doc.appendChild(root(publication));
 		return doc;
 	}
 	
-	private Element root(Metadata metadata) {
+	private Element root(Publication publication) {
 		Element root = doc.createElementNS(DEFAULT_NAMESPACE_URI, "package");
 		root.setAttribute("version", "3.1");
 		root.setAttribute("unique-identifier", UNIQUE_IDENTIFIER);
-		root.appendChild(metadata(metadata));
+		root.appendChild(metadata(publication.getMetadata()));
 		root.appendChild(manifest());
 		root.appendChild(spine());
 		return root;

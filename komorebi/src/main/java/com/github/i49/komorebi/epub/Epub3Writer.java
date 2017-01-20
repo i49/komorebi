@@ -44,7 +44,7 @@ public class Epub3Writer implements PublicationWriter {
 	public void write(Publication book) throws Exception {
 		writeMimeType();
 		writeContainerXml();
-		writePackageXml(book);
+		writePackageDocument(book);
 	}
 
 	@Override
@@ -63,9 +63,9 @@ public class Epub3Writer implements PublicationWriter {
 		writeXmlEntry("META-INF/container.xml", doc);
 	}
 
-	private void writePackageXml(Publication publication) throws IOException, TransformerException {
-		PackageXmlBuilder builder = new PackageXmlBuilder(documentBuilder); 
-		Document doc = builder.build(publication.getMetadata());
+	private void writePackageDocument(Publication publication) throws IOException, TransformerException {
+		PackageDocumentBuilder builder = new PackageDocumentBuilder(documentBuilder); 
+		Document doc = builder.build(publication);
 		writeXmlEntry(this.packageDir + "package.opf", doc);
 	}
 	

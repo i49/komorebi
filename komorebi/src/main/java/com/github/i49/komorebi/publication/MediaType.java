@@ -6,10 +6,13 @@ package com.github.i49.komorebi.publication;
 public enum MediaType {
 
 	APPLICATION_XHTML_XML("application", "xhtml+xml"),
+	IMAGE_GIF("image", "gif"),
 	IMAGE_JPEG("image", "jpeg"),
 	IMAGE_PNG("image", "png"),
+	IMAGE_SVG_XML("image", "svg+xml"),
+	TEXT_CSS("text", "css"),
 	TEXT_HTML("text", "html"),
-	TEXT_STYLESHEET("text", "css")
+	TEXT_JAVASCRIPT("text", "javascript")
 	;
 	
 	private final String type;

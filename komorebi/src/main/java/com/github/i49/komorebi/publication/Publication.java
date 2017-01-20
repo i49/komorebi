@@ -9,7 +9,8 @@ import java.util.List;
 public class Publication {
 
 	private final Metadata metadata;
-	private final List<PublicationResource> resources = new ArrayList<>();
+	private final List<PublicationResource> topLevelResources = new ArrayList<>();
+	private final List<PublicationResource> supportResources = new ArrayList<>();
 	
 	public Publication() {
 		this(new Metadata());
@@ -23,7 +24,11 @@ public class Publication {
 		return metadata;
 	}
 	
-	public List<PublicationResource> getResources() {
-		return resources;
+	public List<PublicationResource> getTopLevelResources() {
+		return topLevelResources;
+	}
+	
+	public List<PublicationResource> getSupportResources() {
+		return supportResources;
 	}
 }
