@@ -1,10 +1,11 @@
 package com.github.i49.komorebi.epub;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -28,60 +29,66 @@ class PackageDocumentBuilder {
 	private static final String UNIQUE_IDENTIFIER = "publication-id";
 	private static final String ID_PREFIX = "item";
 	
-	private final DocumentBuilder builder;
+	private Publication publication;
 	private Document doc;
 	
 	private Map<URI, String> identifiers = new HashMap<>();
 	private int nextNumber;
 	
-	PackageDocumentBuilder(DocumentBuilder builder) {
-		this.builder = builder;
+	/**
+	 * Construct this builder.
+	 * @param publication the publication for which a publication document will be built.
+	 * @param builder the XML document builder.
+	 */
+	PackageDocumentBuilder(Publication publication, DocumentBuilder builder) {
+		this.publication = publication;
+		this.doc = builder.newDocument();
 		this.nextNumber = 1;
 	}
 	
-	Document build(Publication publication) {
-		this.doc = builder.newDocument();
-		this.doc.appendChild(root(publication));
-		return doc;
+	Document build() {
+		this.doc.appendChild(root());
+		return this.doc;
 	}
 	
-	private Element root(Publication publication) {
+	private Element root() {
 		Element root = doc.createElementNS(DEFAULT_NAMESPACE_URI, "package");
 		root.setAttribute("version", VERSION);
 		root.setAttribute("unique-identifier", UNIQUE_IDENTIFIER);
-		root.appendChild(metadata(publication.getMetadata()));
-		root.appendChild(manifest(publication.getResources()));
-		root.appendChild(spine(publication.getResources(), publication.getPages()));
+		root.appendChild(metadata());
+		root.appendChild(manifest());
+		root.appendChild(spine());
 		return root;
 	}
 	
-	private Element metadata(Metadata metadata) {
+	private Element metadata() {
+		Metadata m = publication.getMetadata();
 		Element e = doc.createElementNS(DEFAULT_NAMESPACE_URI, "metadata");
 		e.setAttribute("xmlns:dc", DC_NAMESPACE_URI);
 
-		if (metadata.getTitle() != null) {
-			Element title = createMetadata("dc:title", metadata.getTitle());
+		if (m.getTitle() != null) {
+			Element title = createMetadata("dc:title", m.getTitle());
 			title.setAttribute("id", "title");
 			e.appendChild(title);
 		}
 		
-		if (metadata.getIdentifier() != null) {
-			Element identifer = createMetadata("dc:identifer", metadata.getIdentifier());
+		if (m.getIdentifier() != null) {
+			Element identifer = createMetadata("dc:identifer", m.getIdentifier());
 			identifer.setAttribute("id", UNIQUE_IDENTIFIER);
 			e.appendChild(identifer);
 		}
 
-		if (metadata.getLanguage() != null) {
-			Element language = createMetadata("dc:language", metadata.getLanguage().toLanguageTag());
+		if (m.getLanguage() != null) {
+			Element language = createMetadata("dc:language", m.getLanguage().toLanguageTag());
 			e.appendChild(language);
 		}
 		
-		if (metadata.getPublisher() != null) {
-			Element publisher = createMetadata("dc:publisher", metadata.getPublisher());
+		if (m.getPublisher() != null) {
+			Element publisher = createMetadata("dc:publisher", m.getPublisher());
 			e.appendChild(publisher);
 		}
 		
-		for (String creator: metadata.getCreators()) {
+		for (String creator: m.getCreators()) {
 			Element child = createMetadata("dc:creator", creator);
 			e.appendChild(child);
 		}
@@ -95,21 +102,57 @@ class PackageDocumentBuilder {
 		return e;
 	}
 	
-	private Element manifest(Set<PublicationResource> resources) {
+	/**
+	 * Creates a manifest element.
+	 * @return created manifest element.
+	 */
+	private Element manifest() {
 		Element manifest = doc.createElementNS(DEFAULT_NAMESPACE_URI, "manifest");
-		for (PublicationResource resource: resources) {
-			Element item = doc.createElementNS(DEFAULT_NAMESPACE_URI, "item");
-			String id = generateId();
-			item.setAttribute("id", id);
-			item.setAttribute("href", resource.getIdentifier().toString());
-			item.setAttribute("media-type", resource.getMediaType().toString());
-			manifest.appendChild(item);
-			this.identifiers.put(resource.getIdentifier(), id);
+		for (PublicationResource resource: publication.getResources()) {
+			manifest.appendChild(item(resource));
 		}
 		return manifest;
 	}
+	
+	/**
+	 * Creates an item element in manifest. 
+	 * @param resource the resource for which an item will be created.
+	 * @return created item element.
+	 */
+	private Element item(PublicationResource resource) {
+		String id = nextId();
+		this.identifiers.put(resource.getIdentifier(), id);
+		
+		Element item = doc.createElementNS(DEFAULT_NAMESPACE_URI, "item");
+		item.setAttribute("id", id);
+		item.setAttribute("href", resource.getIdentifier().toString());
+		item.setAttribute("media-type", resource.getMediaType().toString());
+		
+		String properties = itemProperties(resource);
+		if (properties != null) {
+			item.setAttribute("properties", properties);
+		}
 
-	private Element spine(Set<PublicationResource> resources, List<URI> pages) {
+		return item;
+	}
+	
+	private String itemProperties(PublicationResource resource) {
+		List<String> properties = new ArrayList<>();
+		if (resource == publication.getCoverImageResource()) {
+			properties.add("cover-image");
+		}
+		if (properties.isEmpty()) {
+			return null;
+		}
+		return properties.stream().collect(Collectors.joining(" "));
+	}
+
+	/**
+	 * Creates a spine element.
+	 * @return created spine element.
+	 */
+	private Element spine() {
+		List<URI> pages = publication.getPages();
 		Element spine = doc.createElementNS(DEFAULT_NAMESPACE_URI, "spine");
 		for (URI page: pages) {
 			Element itemref = doc.createElementNS(DEFAULT_NAMESPACE_URI, "itemref");
@@ -120,7 +163,11 @@ class PackageDocumentBuilder {
 		return spine;
 	}
 	
-	private String generateId() {
+	/**
+	 * Generates a next id.
+	 * @return generated id.
+	 */
+	private String nextId() {
 		return ID_PREFIX + this.nextNumber++;		
 	}
 }

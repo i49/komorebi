@@ -1,8 +1,6 @@
 package com.github.i49.komorebi.publication;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.github.i49.komorebi.common.MediaType;
 
@@ -14,7 +12,6 @@ public class PublicationResource {
 
 	private final URI identifier;
 	private final MediaType mediaType;
-	private final List<String> properties = new ArrayList<>();
 	private ContentProvider provider;
 
 	public PublicationResource(URI identifier, MediaType mediaType) {
@@ -31,10 +28,6 @@ public class PublicationResource {
 	
 	public MediaType getMediaType() {
 		return mediaType;
-	}
-	
-	public List<String> getProperties() {
-		return properties;
 	}
 	
 	public Content getContent() {

@@ -30,6 +30,7 @@ public class Epub3Writer implements PublicationWriter {
 
 	private static final String MIMETYPE = "application/epub+zip";
 	private static final String DEFAULT_PACKAGE_DIR = "EPUB/";
+	private static final String PACKAGE_DOCUMENT_NAME = "package.opf";
 
 	private final Transformer transformer;
 	private final ZipOutputStream zstream;
@@ -69,9 +70,9 @@ public class Epub3Writer implements PublicationWriter {
 	}
 
 	private void writePackageDocument(Publication publication) throws IOException, TransformerException {
-		PackageDocumentBuilder builder = new PackageDocumentBuilder(documentBuilder); 
-		Document doc = builder.build(publication);
-		writeXmlEntry(this.packageDir + "package.opf", doc);
+		PackageDocumentBuilder builder = new PackageDocumentBuilder(publication, documentBuilder); 
+		Document doc = builder.build();
+		writeXmlEntry(this.packageDir + PACKAGE_DOCUMENT_NAME, doc);
 	}
 	
 	private void writeAllResources(Publication publication) throws IOException {

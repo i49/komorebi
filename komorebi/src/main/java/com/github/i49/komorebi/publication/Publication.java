@@ -12,11 +12,11 @@ import java.util.Set;
 public class Publication {
 
 	private final Metadata metadata;
-	private final List<PublicationResource> topLevelResources = new ArrayList<>();
-	private final List<PublicationResource> supportResources = new ArrayList<>();
-	
+
 	private final Set<PublicationResource> resources = new HashSet<>();
 	private final List<URI> pages = new ArrayList<>();
+	
+	private PublicationResource coverImageResource;
 	
 	public Publication() {
 		this(new Metadata());
@@ -38,11 +38,15 @@ public class Publication {
 		return pages;
 	}
 	
-	public List<PublicationResource> getTopLevelResources() {
-		return topLevelResources;
+	/**
+	 * Returns a resource that represents a cover image.
+	 * @return the cover image resource.
+	 */
+	public PublicationResource getCoverImageResource() {
+		return coverImageResource;
 	}
-	
-	public List<PublicationResource> getSupportResources() {
-		return supportResources;
-	}
+
+	public void setCoverImageResource(PublicationResource resource) {
+		this.coverImageResource = resource;
+	}	
 }
