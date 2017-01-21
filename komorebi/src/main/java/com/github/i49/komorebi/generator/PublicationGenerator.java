@@ -109,7 +109,7 @@ public class PublicationGenerator {
 
 	private static Path getDefaultTargetPath(Path sourceDir) {
 		String filename = sourceDir.getFileName().toString();
-		Path parent = sourceDir.getParent();
+		Path parent = sourceDir.toAbsolutePath().getParent();
 		return parent.resolve(filename + ".epub");
 	}
 }

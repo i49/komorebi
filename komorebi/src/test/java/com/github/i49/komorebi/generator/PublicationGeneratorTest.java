@@ -1,4 +1,4 @@
-package com.github.i49.komorebi;
+package com.github.i49.komorebi.generator;
 
 import static org.junit.Assert.*;
 
