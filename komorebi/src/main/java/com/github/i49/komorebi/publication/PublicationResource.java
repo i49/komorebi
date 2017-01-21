@@ -1,53 +1,77 @@
 package com.github.i49.komorebi.publication;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import com.github.i49.komorebi.common.MediaType;
+
+/**
+ * A resource that contains content or instructions that contribute to the logic and rendering of 
+ * a publication.
+ */
 public class PublicationResource {
 
-	private final String name;
+	private final URI identifier;
 	private final MediaType mediaType;
-	
-	private Optional<String> id = Optional.empty();
-	private boolean linear;
 	private final List<String> properties = new ArrayList<>();
+	private ContentProvider provider;
 
-	public PublicationResource(String name, MediaType mediaType) {
-		if (name == null || mediaType == null) {
+	public PublicationResource(URI identifier, MediaType mediaType) {
+		if (identifier == null || mediaType == null) {
 			throw new NullPointerException();
 		}
-		this.name = name;
+		this.identifier = identifier;
 		this.mediaType = mediaType;
-		this.id = Optional.empty();
-		this.linear = true;
 	}
 
-	public String getName() {
-		return name;
+	public URI getIdentifier() {
+		return identifier;
 	}
 	
 	public MediaType getMediaType() {
 		return mediaType;
 	}
 	
-	public Optional<String> getId() {
-		return id;
-	}
-	
-	public void setId(String id) {
-		this.id = Optional.ofNullable(id);
-	}
-	
-	public boolean isLinear() {
-		return linear;
-	}
-	
-	public void setLinear(boolean linear) {
-		this.linear = linear;
-	}
-	
 	public List<String> getProperties() {
 		return properties;
+	}
+	
+	public Content getContent() {
+		if (this.provider == null) {
+			return null;
+		}
+		return this.provider.getContent(getIdentifier(), getMediaType());
+	}
+	
+	public void setContentProvider(ContentProvider provider) {
+		this.provider = provider;
+	}
+	
+	@Override
+	public String toString() {
+		return getIdentifier().toString();
+	}
+
+	@Override
+	public int hashCode() {
+		return identifier.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PublicationResource other = (PublicationResource) obj;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		return true;
 	}
 }

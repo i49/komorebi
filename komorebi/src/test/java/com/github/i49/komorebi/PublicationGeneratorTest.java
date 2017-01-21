@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
+import com.github.i49.komorebi.generator.PublicationGenerator;
+
 public class PublicationGeneratorTest {
 
 	private static final Path TARGET_PATH = Paths.get("target");

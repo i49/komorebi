@@ -1,6 +1,7 @@
 package com.github.i49.komorebi.epub;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
@@ -19,7 +20,10 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 
+import com.github.i49.komorebi.publication.Content;
+import com.github.i49.komorebi.publication.OctetContent;
 import com.github.i49.komorebi.publication.Publication;
+import com.github.i49.komorebi.publication.PublicationResource;
 import com.github.i49.komorebi.publication.PublicationWriter;
 
 public class Epub3Writer implements PublicationWriter {
@@ -41,10 +45,11 @@ public class Epub3Writer implements PublicationWriter {
 	}
 
 	@Override
-	public void write(Publication book) throws Exception {
+	public void write(Publication publication) throws Exception {
 		writeMimeType();
 		writeContainerXml();
-		writePackageDocument(book);
+		writePackageDocument(publication);
+		writeAllResources(publication);
 	}
 
 	@Override
@@ -67,6 +72,27 @@ public class Epub3Writer implements PublicationWriter {
 		PackageDocumentBuilder builder = new PackageDocumentBuilder(documentBuilder); 
 		Document doc = builder.build(publication);
 		writeXmlEntry(this.packageDir + "package.opf", doc);
+	}
+	
+	private void writeAllResources(Publication publication) throws IOException {
+		for (PublicationResource resource: publication.getResources()) {
+			String entryName = this.packageDir + resource.getIdentifier().toString();
+			Content content = resource.getContent();
+			if (content instanceof OctetContent) {
+				writeOctetContent(entryName, (OctetContent)content);
+			}
+		}
+	}
+	
+	private void writeOctetContent(String entryName, OctetContent content) throws IOException {
+		ZipEntry entry = new ZipEntry(entryName);
+		byte[] buffer = new byte[128 * 1024];
+		try (InputStream in = content.openStream(); OutputStream out = newEntryStream(entry, true)) {
+			int length = 0;
+			while ((length = in.read(buffer)) != -1) {
+				out.write(buffer, 0, length);
+			}
+		}
 	}
 	
 	private void writeUncompressedEntry(String entryName, byte[] content) throws IOException {
@@ -97,10 +123,6 @@ public class Epub3Writer implements PublicationWriter {
 
 	private void writeXmlDeclaration(OutputStream stream) throws IOException {
 		writeText(stream, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
-	}
-	
-	private void writeXmlDocType(OutputStream stream) throws IOException {
-		writeText(stream, "<!DOCTYPE html>\n");
 	}
 	
 	private void writeText(OutputStream stream, String text) throws IOException {

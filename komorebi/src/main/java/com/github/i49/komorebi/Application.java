@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import com.github.i49.komorebi.generator.PublicationGenerator;
+
 public class Application {
 	
 	private final PrintStream out = System.out;

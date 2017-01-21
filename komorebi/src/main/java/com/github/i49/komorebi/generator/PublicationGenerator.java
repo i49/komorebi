@@ -1,29 +1,36 @@
-package com.github.i49.komorebi;
+package com.github.i49.komorebi.generator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.github.i49.komorebi.publication.MediaType;
+import com.github.i49.komorebi.common.MediaType;
+import com.github.i49.komorebi.common.MediaTypes;
+import com.github.i49.komorebi.common.Order;
+import com.github.i49.komorebi.publication.ContentProvider;
 import com.github.i49.komorebi.publication.Metadata;
 import com.github.i49.komorebi.publication.Publication;
 import com.github.i49.komorebi.publication.PublicationResource;
 import com.github.i49.komorebi.publication.PublicationWriter;
 import com.github.i49.komorebi.publication.PublicationWriterFactory;
+import com.github.i49.komorebi.publication.StreamContentProvider;
 
 /**
  * Publication generator that generates a publication from a set of sources.
  */
 public class PublicationGenerator {
 	
-	private boolean ascending = true;
+	private Order order = Order.ASCENDING;
+	private static final String METADATA_FILENAME = "metadata.yaml";
 	
-	public void setDocumentOrder(boolean ascending) {
-		this.ascending = ascending;
+	public void setDocumentOrder(Order order) {
+		this.order = order;
 	}
 	
 	public void generate(Path sourceDir, Path target) throws Exception {
@@ -42,7 +49,7 @@ public class PublicationGenerator {
 	}
 	
 	private Metadata loadMetadata(Path sourceDir) throws IOException {
-		Path path = sourceDir.resolve("metadata.yml");
+		Path path = sourceDir.resolve(METADATA_FILENAME);
 		if (Files.exists(path)) {
 			try (InputStream stream = Files.newInputStream(path)) {
 				return Metadata.load(stream);
@@ -54,42 +61,43 @@ public class PublicationGenerator {
 	
 	private Publication buildPublication(Path sourceDir) throws IOException {
 	
+		URI baseURI = sourceDir.toUri();
 		Metadata metadata = loadMetadata(sourceDir);
 		Publication publication = new Publication(metadata);
+		ContentProvider provider = new StreamContentProvider(baseURI);
 		
-		List<PublicationResource> topLevel = new ArrayList<>();
+		List<URI> pages = new ArrayList<>();
 		Files.walk(sourceDir).filter(Files::isRegularFile).forEach(path->{
-			Path relativePath = sourceDir.relativize(path);
-			MediaType mediaType = guessMediaType(relativePath);
+			URI uri = path.toUri();
+			MediaType mediaType = MediaTypes.guess(uri);
 			if (mediaType == null) {
 				return;
 			}
+			URI identifier = baseURI.relativize(uri);
+			PublicationResource resource = createResource(identifier, mediaType, provider);
+			publication.getResources().add(resource);
 			if (mediaType == MediaType.TEXT_HTML || mediaType == MediaType.APPLICATION_XHTML_XML) {
-				PublicationResource resource = createTopLevelResource(relativePath, mediaType);
-				topLevel.add(resource);
-				publication.getTopLevelResources().add(resource);
-			} else {
-				PublicationResource resource = createSupportResource(relativePath, mediaType);
-				publication.getSupportResources().add(resource);
+				pages.add(identifier);
 			}
 		});
 		
+		return addPages(publication, pages);
+	}
+	
+	private PublicationResource createResource(URI identifier, MediaType mediaType, ContentProvider provider) {
+		PublicationResource resource = new PublicationResource(identifier, mediaType);
+		resource.setContentProvider(provider);
+		return resource;
+	}
+	
+	private Publication addPages(Publication publication, List<URI> pages) {
+		if (this.order == Order.ASCENDING) {
+			Collections.sort(pages);
+		} else {
+			Collections.sort(pages, Collections.reverseOrder());
+		}
+		publication.getPages().addAll(pages);
 		return publication;
-	}
-	
-	private PublicationResource createTopLevelResource(Path path, MediaType mediaType) {
-		PublicationResource resource = new PublicationResource(getResourceName(path), mediaType);
-		return resource;
-	}
-	
-	private PublicationResource createSupportResource(Path path, MediaType mediaType) {
-		PublicationResource resource = new PublicationResource(getResourceName(path), mediaType);
-		return resource;
-	}
-	
-	private static String getResourceName(Path path) {
-		String string = path.toString();
-		return string.replaceAll("\\\\", "/");
 	}
 	
 	private void writePublication(Path target, Publication publication) throws Exception {
@@ -103,45 +111,5 @@ public class PublicationGenerator {
 		String filename = sourceDir.getFileName().toString();
 		Path parent = sourceDir.getParent();
 		return parent.resolve(filename + ".epub");
-	}
-	
-	private static MediaType guessMediaType(Path path) {
-		String filename = path.getFileName().toString();
-		int lastIndex = filename.lastIndexOf(".");
-		if (lastIndex >= 0) {
-			String extension = filename.substring(lastIndex + 1);
-			return guessMediaTypeByFileExtension(extension);
-		}
-		return null;
-	}
-	
-	private static MediaType guessMediaTypeByFileExtension(String extension) {
-		MediaType mediaType = null;
-		switch (extension.toLowerCase()) {
-		case "htm":
-		case "html":
-			mediaType = MediaType.TEXT_HTML;
-			break;
-		case "xhtml":
-			mediaType = MediaType.APPLICATION_XHTML_XML;
-			break;
-		case "css":
-			mediaType = MediaType.TEXT_CSS;
-			break;
-		case "gif":
-			mediaType = MediaType.IMAGE_GIF;
-			break;
-		case "jpg":
-		case "jpeg":
-			mediaType = MediaType.IMAGE_JPEG;
-			break;
-		case "png":
-			mediaType = MediaType.IMAGE_PNG;
-			break;
-		case "svg":
-			mediaType = MediaType.IMAGE_SVG_XML;
-			break;
-		}
-		return mediaType;
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.i49.komorebi.publication;
+package com.github.i49.komorebi.common;
 
 /**
  * The media types which specify types and formats of the Publication Resources contained in a publication.
