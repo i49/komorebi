@@ -17,7 +17,7 @@ public class PublicationGeneratorTest {
 	@Test
 	public void sample01() throws Exception {
 		PublicationGenerator generator = new PublicationGenerator();
-		generator.generate(getSourcePath("sample01"), getTargetPath("sample01.zip"));
+		generator.generate(getSourcePath("sample01"), getTargetPath("sample01.epub"));
 	}
 
 	private static Path getSourcePath(String name) {

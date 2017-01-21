@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.github.i49.komorebi.publication.Chapter;
 import com.github.i49.komorebi.publication.Metadata;
 import com.github.i49.komorebi.publication.Publication;
 import com.github.i49.komorebi.publication.PublicationResource;
@@ -25,7 +26,7 @@ class PackageDocumentBuilder {
 	private static final String DEFAULT_NAMESPACE_URI = "http://www.idpf.org/2007/opf";
 	private static final String DC_NAMESPACE_URI = "http://purl.org/dc/elements/1.1/";
 	
-	private static final String VERSION = "3.1";
+	private static final String VERSION = "3.0";
 	private static final String UNIQUE_IDENTIFIER = "publication-id";
 	private static final String ID_PREFIX = "item";
 	
@@ -46,21 +47,35 @@ class PackageDocumentBuilder {
 		this.nextNumber = 1;
 	}
 	
+	/**
+	 * Builds the package document.
+	 * @return built package document.
+	 */
 	Document build() {
 		this.doc.appendChild(root());
 		return this.doc;
 	}
 	
+	/**
+	 * Creates a package element at the root of the document.
+	 * @return created element.
+	 */
 	private Element root() {
 		Element root = doc.createElementNS(DEFAULT_NAMESPACE_URI, "package");
 		root.setAttribute("version", VERSION);
 		root.setAttribute("unique-identifier", UNIQUE_IDENTIFIER);
+	
 		root.appendChild(metadata());
 		root.appendChild(manifest());
 		root.appendChild(spine());
+		
 		return root;
 	}
 	
+	/**
+	 * Creates a metadata element.
+	 * @return created metadata element.
+	 */
 	private Element metadata() {
 		Metadata m = publication.getMetadata();
 		Element e = doc.createElementNS(DEFAULT_NAMESPACE_URI, "metadata");
@@ -73,7 +88,7 @@ class PackageDocumentBuilder {
 		}
 		
 		if (m.getIdentifier() != null) {
-			Element identifer = createMetadata("dc:identifer", m.getIdentifier());
+			Element identifer = createMetadata("dc:identifier", m.getIdentifier());
 			identifer.setAttribute("id", UNIQUE_IDENTIFIER);
 			e.appendChild(identifer);
 		}
@@ -152,15 +167,26 @@ class PackageDocumentBuilder {
 	 * @return created spine element.
 	 */
 	private Element spine() {
-		List<URI> pages = publication.getPages();
 		Element spine = doc.createElementNS(DEFAULT_NAMESPACE_URI, "spine");
-		for (URI page: pages) {
-			Element itemref = doc.createElementNS(DEFAULT_NAMESPACE_URI, "itemref");
-			String idref = this.identifiers.get(page);
-			itemref.setAttribute("idref", idref);
-			spine.appendChild(itemref);
+		for (Chapter chapter: publication.getChapters()) {
+			spine.appendChild(itemref(chapter));
 		}
 		return spine;
+	}
+	
+	/**
+	 * Creates an itemref element in spine. 
+	 * @param chapter the chapter for which an itemref will be created.
+	 * @return created itemref element.
+	 */
+	private Element itemref(Chapter chapter) {
+		Element itemref = doc.createElementNS(DEFAULT_NAMESPACE_URI, "itemref");
+		String idref = this.identifiers.get(chapter.getIdentifier());
+		itemref.setAttribute("idref", idref);
+		if (!chapter.isPrimary()) {
+			itemref.setAttribute("linear", "no");
+		}
+		return itemref;
 	}
 	
 	/**

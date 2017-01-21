@@ -1,6 +1,5 @@
 package com.github.i49.komorebi.publication;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +13,7 @@ public class Publication {
 	private final Metadata metadata;
 
 	private final Set<PublicationResource> resources = new HashSet<>();
-	private final List<URI> pages = new ArrayList<>();
+	private final List<Chapter> chapters = new ArrayList<>();
 	
 	private PublicationResource coverImageResource;
 	
@@ -34,8 +33,8 @@ public class Publication {
 		return resources;
 	}
 	
-	public List<URI> getPages() {
-		return pages;
+	public List<Chapter> getChapters() {
+		return chapters;
 	}
 	
 	/**
