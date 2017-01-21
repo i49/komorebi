@@ -1,7 +1,6 @@
 package com.github.i49.komorebi.generator;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -68,9 +67,8 @@ class PublicationBuilder {
 	private Metadata loadMetadata() throws IOException {
 		Path path = this.sourceDir.resolve(METADATA_FILENAME);
 		if (Files.exists(path)) {
-			try (InputStream stream = Files.newInputStream(path)) {
-				return Metadata.load(stream);
-			}
+			MetadataLoader loader = new MetadataLoader();
+			return loader.load(path);
 		} else {
 			return new Metadata();
 		}

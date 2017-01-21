@@ -1,38 +1,26 @@
 package com.github.i49.komorebi.publication;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
- * Metadata of a book.
+ * Metadata of a publication.
  */
 public class Metadata {
 
-	private String title;
 	private String identifier;
-	private Locale language;
+	private final List<String> titles = new ArrayList<>();
+	private final List<Locale> languages = new ArrayList<>();
 	
-	private String publisher;
 	private final List<String> creators = new ArrayList<>();
+	private final List<String> publishers = new ArrayList<>();
 	
-	private LocalDateTime date;
-	private LocalDateTime lastModified;
+	private OffsetDateTime date;
+	private OffsetDateTime lastModified;
 
 	public Metadata() {
-		this.identifier = generateIdentifier();
-	}
-	
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 	
 	public String getIdentifier() {
@@ -42,36 +30,32 @@ public class Metadata {
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
-	
-	public Locale getLanguage() {
-		return language;
+
+	public List<String> getTitles() {
+		return titles;
 	}
 	
-	public void setLanguage(Locale language) {
-		this.language = language;
+	public List<Locale> getLanguages() {
+		return languages;
 	}
 	
-	public String getPublisher() {
-		return publisher;
+	public List<String> getPublishers() {
+		return publishers;
 	}
 	
-	public void setPublisher(String publisher) {
-		this.publisher = publisher;
-	}
-	
-	public LocalDateTime getDate() {
+	public OffsetDateTime getDate() {
 		return date;
 	}
 	
-	public void setDate(LocalDateTime date) {
+	public void setDate(OffsetDateTime date) {
 		this.date = date;
 	}
 	
-	public LocalDateTime getLastModified() {
+	public OffsetDateTime getLastModified() {
 		return lastModified;
 	}
 	
-	public void setLastModified(LocalDateTime lastModified) {
+	public void setLastModified(OffsetDateTime lastModified) {
 		this.lastModified = lastModified;
 	}
 	
@@ -79,28 +63,24 @@ public class Metadata {
 		return creators;
 	}
 	
-	public static Metadata load(InputStream s) throws IOException {
-		return MetadataLoader.load(s);
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		if (getTitle() != null)
-			b.append("Title: ").append(getTitle()).append("\n");
-		if (getIdentifier() != null)
+		if (getIdentifier() != null) {
 			b.append("Identifier: ").append(getIdentifier()).append("\n");
-		if (getLanguage() != null)
-			b.append("Language: ").append(getLanguage()).append("\n");
-		for (String creator : getCreators())
+		}
+		for (String title: getTitles()) {
+			b.append("Title: ").append(title).append("\n");
+		}
+		for (Locale language: getLanguages()) {
+			b.append("Language: ").append(language.toLanguageTag()).append("\n");
+		}
+		for (String creator : getCreators()) {
 			b.append("Creator: ").append(creator).append("\n");
-		if (getPublisher() != null)
-			b.append("Publisher: ").append(getPublisher());										
+		}
+		for (String publisher: getPublishers()) {
+			b.append("Publisher: ").append(publisher);
+		}
 		return b.toString();
-	}
-	
-	private static String generateIdentifier() {
-		UUID uuid = UUID.randomUUID();
-		return "urn:uuid:" + uuid.toString();
 	}
 }
