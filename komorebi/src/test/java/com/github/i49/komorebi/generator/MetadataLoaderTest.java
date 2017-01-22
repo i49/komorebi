@@ -5,6 +5,8 @@ import static org.hamcrest.CoreMatchers.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 import org.junit.Test;
 
@@ -27,6 +29,8 @@ public class MetadataLoaderTest {
 			assertThat(m.getCreators().get(0), equalTo("Herman Melville"));
 			assertThat(m.getPublishers().size(), equalTo(1));
 			assertThat(m.getPublishers().get(0), equalTo("Harper & Brothers, Publishers"));
+			assertThat(m.getDate(), equalTo(OffsetDateTime.of(1851, 11, 14, 0, 0, 0, 0, ZoneOffset.UTC)));
+			assertThat(m.getLastModified(), equalTo(OffsetDateTime.of(2016, 2, 5, 14, 40, 0, 0, ZoneOffset.UTC)));
 		}
 	}
 }

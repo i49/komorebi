@@ -39,6 +39,10 @@ public class Metadata {
 		return languages;
 	}
 	
+	public List<String> getCreators() {
+		return creators;
+	}
+	
 	public List<String> getPublishers() {
 		return publishers;
 	}
@@ -59,10 +63,6 @@ public class Metadata {
 		this.lastModified = lastModified;
 	}
 	
-	public List<String> getCreators() {
-		return creators;
-	}
-	
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
@@ -79,7 +79,13 @@ public class Metadata {
 			b.append("Creator: ").append(creator).append("\n");
 		}
 		for (String publisher: getPublishers()) {
-			b.append("Publisher: ").append(publisher);
+			b.append("Publisher: ").append(publisher).append("\n");
+		}
+		if (getDate() != null) {
+			b.append("Date: ").append(getDate()).append("\n");
+		}
+		if (getLastModified() != null) {
+			b.append("Last Modified: ").append(getLastModified()).append("\n");
 		}
 		return b.toString();
 	}
