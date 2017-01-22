@@ -19,13 +19,9 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.github.i49.reflow.common.MediaType;
 import com.github.i49.reflow.content.Content;
 import com.github.i49.reflow.content.OctetContent;
-import com.github.i49.reflow.content.XmlContent;
-import com.github.i49.reflow.publication.Chapter;
 import com.github.i49.reflow.publication.Publication;
 import com.github.i49.reflow.publication.PublicationResource;
 import com.github.i49.reflow.publication.PublicationWriter;
