@@ -7,11 +7,13 @@ import java.net.URI;
 import java.util.function.Supplier;
 
 import com.github.i49.komorebi.common.MediaType;
+import com.github.i49.komorebi.content.Content;
+import com.github.i49.komorebi.content.StreamContentFactory;
 
 public class StreamContentProvider implements ContentProvider {
 	
 	private final URI baseURI;
-	private final ContentFactory factory = new ContentFactory();
+	private final StreamContentFactory factory = new StreamContentFactory();
 	
 	public StreamContentProvider(URI baseURI) {
 		this.baseURI = baseURI;

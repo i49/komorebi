@@ -1,4 +1,4 @@
-package com.github.i49.komorebi.publication;
+package com.github.i49.komorebi.content;
 
 import java.io.InputStream;
 

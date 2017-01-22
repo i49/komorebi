@@ -3,6 +3,7 @@ package com.github.i49.komorebi.publication;
 import java.net.URI;
 
 import com.github.i49.komorebi.common.MediaType;
+import com.github.i49.komorebi.content.Content;
 
 /**
  * A resource that contains content or instructions that contribute to the logic and rendering of 

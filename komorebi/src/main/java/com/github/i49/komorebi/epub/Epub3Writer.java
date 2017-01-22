@@ -19,18 +19,24 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import com.github.i49.komorebi.publication.Content;
-import com.github.i49.komorebi.publication.OctetContent;
+import com.github.i49.komorebi.common.MediaType;
+import com.github.i49.komorebi.content.Content;
+import com.github.i49.komorebi.content.OctetContent;
+import com.github.i49.komorebi.content.XmlContent;
+import com.github.i49.komorebi.publication.Chapter;
 import com.github.i49.komorebi.publication.Publication;
 import com.github.i49.komorebi.publication.PublicationResource;
 import com.github.i49.komorebi.publication.PublicationWriter;
+import com.github.i49.komorebi.publication.Toc;
 
 public class Epub3Writer implements PublicationWriter {
 
 	private static final String MIMETYPE = "application/epub+zip";
 	private static final String DEFAULT_PACKAGE_DIR = "EPUB/";
 	private static final String PACKAGE_DOCUMENT_NAME = "package.opf";
+	private static final int BUFFER_SIZE = 128 * 1024;
 
 	private final Transformer transformer;
 	private final ZipOutputStream zstream;
@@ -46,11 +52,12 @@ public class Epub3Writer implements PublicationWriter {
 	}
 
 	@Override
-	public void write(Publication publication) throws Exception {
+	public void write(Publication pub) throws Exception {
 		writeMimeType();
 		writeContainerXml();
-		writePackageDocument(publication);
-		writeAllResources(publication);
+		writePackageDocument(pub);
+		writeAllResources(pub);
+		buildToc(pub);
 	}
 
 	@Override
@@ -74,6 +81,11 @@ public class Epub3Writer implements PublicationWriter {
 		Document doc = builder.build();
 		writeXmlEntry(this.packageDir + PACKAGE_DOCUMENT_NAME, doc);
 	}
+
+	private void buildToc(Publication pub) {
+		TocBuilder builder = new TocBuilder(pub);
+		Toc toc = builder.buildToc();
+	}
 	
 	private void writeAllResources(Publication publication) throws IOException {
 		for (PublicationResource resource: publication.getResources()) {
@@ -87,7 +99,7 @@ public class Epub3Writer implements PublicationWriter {
 	
 	private void writeOctetContent(String entryName, OctetContent content) throws IOException {
 		ZipEntry entry = new ZipEntry(entryName);
-		byte[] buffer = new byte[128 * 1024];
+		byte[] buffer = new byte[BUFFER_SIZE];
 		try (InputStream in = content.openStream(); OutputStream out = newEntryStream(entry, true)) {
 			int length = 0;
 			while ((length = in.read(buffer)) != -1) {

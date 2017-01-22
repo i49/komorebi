@@ -17,7 +17,7 @@ public class Application {
 	
 	private final PrintStream out = System.out;
 
-	private int run(String[] args) throws Exception {
+	public int run(String... args) throws Exception {
 		LinkedList<String> argList = new LinkedList<String>(Arrays.asList(args));
 		return run(argList);
 	}
