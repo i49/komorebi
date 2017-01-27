@@ -1,0 +1,5 @@
+reflow [options] <source directory>
+Options:
+    -help              Print this message and exit
+    -output <file>     Specify output file
+ 
