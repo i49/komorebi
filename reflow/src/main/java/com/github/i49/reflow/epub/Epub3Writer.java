@@ -3,9 +3,6 @@ package com.github.i49.reflow.epub;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -35,7 +32,7 @@ public class Epub3Writer implements PublicationWriter {
 	private static final int BUFFER_SIZE = 128 * 1024;
 
 	private final Transformer transformer;
-	private final ZipOutputStream zstream;
+	private final Archiver archiver;
 	
 	private final DocumentBuilder documentBuilder;
 	
@@ -44,7 +41,7 @@ public class Epub3Writer implements PublicationWriter {
 	public Epub3Writer(OutputStream stream) throws Exception {
 		this.documentBuilder = createDocumentBuilder();
 		this.transformer = createTransformer();
-		this.zstream = new ZipOutputStream(stream);
+		this.archiver = new ZipArchiver(stream);
 	}
 
 	@Override
@@ -58,12 +55,12 @@ public class Epub3Writer implements PublicationWriter {
 
 	@Override
 	public void close() throws IOException {
-		this.zstream.close();
+		this.archiver.close();
 	}
 	
 	private void writeMimeType() throws IOException {
 		byte[] content = MIMETYPE.getBytes();
-		writeUncompressedEntry("mimetype", content);
+		archiver.appendRaw("mimetype", content);
 	}
 	
 	private void writeContainerXml() throws IOException, TransformerException {
@@ -94,9 +91,8 @@ public class Epub3Writer implements PublicationWriter {
 	}
 	
 	private void writeOctetContent(String entryName, OctetContent content) throws IOException {
-		ZipEntry entry = new ZipEntry(entryName);
 		byte[] buffer = new byte[BUFFER_SIZE];
-		try (InputStream in = content.openStream(); OutputStream out = newEntryStream(entry, true)) {
+		try (InputStream in = content.openStream(); OutputStream out = archiver.append(entryName)) {
 			int length = 0;
 			while ((length = in.read(buffer)) != -1) {
 				out.write(buffer, 0, length);
@@ -104,32 +100,13 @@ public class Epub3Writer implements PublicationWriter {
 		}
 	}
 	
-	private void writeUncompressedEntry(String entryName, byte[] content) throws IOException {
-		ZipEntry entry = new ZipEntry(entryName);
-		CRC32 crc = new CRC32();
-		crc.update(content);
-		entry.setCrc(crc.getValue());
-		entry.setSize(content.length);
-		try (OutputStream stream = newEntryStream(entry, false)) {
-			stream.write(content);	
-		}
-	}
-
 	private void writeXmlEntry(String entryName, Document doc) throws IOException, TransformerException {
-		ZipEntry entry = new ZipEntry(entryName);
-		try (OutputStream stream = newEntryStream(entry, true)) {
+		try (OutputStream stream = archiver.append(entryName)) {
 			writeXmlDeclaration(stream);	
 			transform(doc, stream);
 		}
 	}
 	
-	private OutputStream newEntryStream(ZipEntry entry, boolean compressing) throws IOException {
-		final int method = compressing ? ZipEntry.DEFLATED : ZipEntry.STORED;
-		entry.setMethod(method);
-		this.zstream.putNextEntry(entry);
-		return new ZipEntryOutputStream(this.zstream);
-	}
-
 	private void writeXmlDeclaration(OutputStream stream) throws IOException {
 		writeText(stream, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n");
 	}

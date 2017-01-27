@@ -81,9 +81,10 @@ public class Toc implements Iterable<Toc.Entry> {
 				parent = lastEntry;
 				int nextLevel = lastLevel + 1;
 				while (nextLevel++ < level) {
-					parent = parent.appendChild(new EntryImpl());
+					parent = parent.appendChild(new EntryImpl("", null));
 				}
 			} else if (level < lastLevel) {
+				parent = lastEntry.parent;
 				int nextLevel = lastLevel;
 				while (nextLevel-- > level) {
 					parent = parent.parent;
