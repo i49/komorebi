@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.github.i49.spine.publication.Metadata;
+import com.github.i49.spine.model.Metadata;
 
 class MetadataLoader {
 	

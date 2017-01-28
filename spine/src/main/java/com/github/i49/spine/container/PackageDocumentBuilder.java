@@ -17,10 +17,10 @@ import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.github.i49.spine.publication.Chapter;
-import com.github.i49.spine.publication.Metadata;
-import com.github.i49.spine.publication.Publication;
-import com.github.i49.spine.publication.PublicationResource;
+import com.github.i49.spine.model.Chapter;
+import com.github.i49.spine.model.Metadata;
+import com.github.i49.spine.model.Publication;
+import com.github.i49.spine.model.PublicationResource;
 
 /**
  * A builder class to build a document carrying bibliographical and structural metadata 

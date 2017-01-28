@@ -1,5 +1,8 @@
 package com.github.i49.spine.cli;
 
+/**
+ * The exception thrown when the command failed.
+ */
 public class CommandException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

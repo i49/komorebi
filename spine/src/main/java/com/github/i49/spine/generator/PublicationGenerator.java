@@ -6,9 +6,9 @@ import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 
 import com.github.i49.spine.common.Order;
-import com.github.i49.spine.publication.Publication;
-import com.github.i49.spine.publication.PublicationWriter;
-import com.github.i49.spine.publication.PublicationWriterFactory;
+import com.github.i49.spine.container.PublicationWriter;
+import com.github.i49.spine.container.PublicationWriterFactory;
+import com.github.i49.spine.model.Publication;
 
 /**
  * Publication generator that generates a publication from a set of sources.

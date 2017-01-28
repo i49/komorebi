@@ -11,7 +11,7 @@ import java.time.ZoneOffset;
 import org.junit.Test;
 
 import com.github.i49.spine.generator.MetadataLoader;
-import com.github.i49.spine.publication.Metadata;
+import com.github.i49.spine.model.Metadata;
 
 public class MetadataLoaderTest {
 

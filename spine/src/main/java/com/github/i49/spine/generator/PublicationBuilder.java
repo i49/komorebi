@@ -16,12 +16,12 @@ import java.util.regex.Pattern;
 import com.github.i49.spine.common.MediaType;
 import com.github.i49.spine.common.MediaTypes;
 import com.github.i49.spine.common.Order;
-import com.github.i49.spine.publication.Chapter;
-import com.github.i49.spine.publication.ContentProvider;
-import com.github.i49.spine.publication.Metadata;
-import com.github.i49.spine.publication.Publication;
-import com.github.i49.spine.publication.PublicationResource;
-import com.github.i49.spine.publication.StreamContentProvider;
+import com.github.i49.spine.model.Chapter;
+import com.github.i49.spine.model.ContentProvider;
+import com.github.i49.spine.model.Metadata;
+import com.github.i49.spine.model.Publication;
+import com.github.i49.spine.model.PublicationResource;
+import com.github.i49.spine.model.StreamContentProvider;
 
 /**
  * A builder to build a publication.

@@ -21,12 +21,14 @@ import org.w3c.dom.Document;
 
 import com.github.i49.spine.content.Content;
 import com.github.i49.spine.content.OctetContent;
-import com.github.i49.spine.publication.Publication;
-import com.github.i49.spine.publication.PublicationResource;
-import com.github.i49.spine.publication.PublicationWriter;
-import com.github.i49.spine.publication.Toc;
+import com.github.i49.spine.model.Publication;
+import com.github.i49.spine.model.PublicationResource;
+import com.github.i49.spine.model.Toc;
 
-public class Epub3Writer implements PublicationWriter {
+/**
+ * Publication writer that is defined as EPUB3 specification.
+ */
+class Epub3PublicationWriter implements PublicationWriter {
 
 	private static final String MIMETYPE = "application/epub+zip";
 	private static final String DEFAULT_PACKAGE_DIR = "EPUB/";
@@ -42,7 +44,7 @@ public class Epub3Writer implements PublicationWriter {
 	
 	private String packageDir = DEFAULT_PACKAGE_DIR;
 	
-	public Epub3Writer(OutputStream stream) throws Exception {
+	public Epub3PublicationWriter(OutputStream stream) throws Exception {
 		this.documentBuilder = createDocumentBuilder();
 		this.transformer = createTransformer();
 		this.archiver = new ZipArchiver(stream);

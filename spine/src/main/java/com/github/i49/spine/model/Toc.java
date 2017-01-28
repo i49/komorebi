@@ -1,4 +1,4 @@
-package com.github.i49.spine.publication;
+package com.github.i49.spine.model;
 
 import java.net.URI;
 import java.util.ArrayList;

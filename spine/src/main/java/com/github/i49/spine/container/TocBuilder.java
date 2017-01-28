@@ -13,7 +13,7 @@ import org.w3c.dom.NodeList;
 import com.github.i49.spine.common.MediaType;
 import com.github.i49.spine.content.Content;
 import com.github.i49.spine.content.XmlContent;
-import com.github.i49.spine.publication.Toc;
+import com.github.i49.spine.model.Toc;
 
 class TocBuilder implements ContentProcessor {
 
