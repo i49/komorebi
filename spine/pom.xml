@@ -32,7 +32,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>com.github.i49.spine.Application</mainClass>
+              <mainClass>com.github.i49.spine.cli.Application</mainClass>
               <addClasspath>true</addClasspath>
             </manifest>
           </archive>
