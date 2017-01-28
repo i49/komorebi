@@ -29,7 +29,12 @@ public class Toc implements Iterable<Toc.Entry> {
 	public Iterator<Entry> iterator() {
 		return root.iterator();
 	}
-
+	
+	@Override
+	public String toString() {
+		return root.toString();
+	}
+	
 	/**
 	 * An entry in this table of contents.
 	 */
@@ -70,7 +75,7 @@ public class Toc implements Iterable<Toc.Entry> {
 		}
 	
 		public Builder append(int level, String label, URI location) {
-			if (level <= 0 || label == null || location == null) {
+			if (level <= 0 || label == null) {
 				throw new IllegalArgumentException();
 			}
 			
@@ -79,9 +84,9 @@ public class Toc implements Iterable<Toc.Entry> {
 				parent = lastEntry.parent;
 			} else if (level > lastLevel) {
 				parent = lastEntry;
-				int nextLevel = lastLevel + 1;
-				while (nextLevel++ < level) {
-					parent = parent.appendChild(new EntryImpl("", null));
+				int nextLevel = lastLevel;
+				while (++nextLevel < level) {
+					parent = parent.appendChild(new EntryImpl(nextLevel, "", null));
 				}
 			} else if (level < lastLevel) {
 				parent = lastEntry.parent;
@@ -91,7 +96,7 @@ public class Toc implements Iterable<Toc.Entry> {
 				}
 			}
 				
-			this.lastEntry = parent.appendChild(new EntryImpl(label, location));
+			this.lastEntry = parent.appendChild(new EntryImpl(level, label, location));
 			this.lastLevel = level;
 				
 			return this;
@@ -108,18 +113,21 @@ public class Toc implements Iterable<Toc.Entry> {
 	
 	private static class EntryImpl implements Entry {
 
+		private final int level;
 		private final String label;
 		private final URI location;
 
 		private EntryImpl parent;
-		private final List<Entry> children = new ArrayList<>();
+		private final List<EntryImpl> children = new ArrayList<>();
 		
 		private EntryImpl() {
+			this.level = 0;
 			this.label = null;
 			this.location = null;
 		}
 
-		private EntryImpl(String label, URI location) {
+		private EntryImpl(int level, String label, URI location) {
+			this.level = level;
 			this.label = label;
 			this.location = location;
 		}
@@ -141,7 +149,31 @@ public class Toc implements Iterable<Toc.Entry> {
 
 		@Override
 		public Iterator<Entry> iterator() {
-			return Collections.unmodifiableList(children).iterator();
+			List<Entry> entries = Collections.unmodifiableList(children); 
+			return entries.iterator();
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder b = new StringBuilder();
+			buildString(b);
+			return b.toString();
+		}
+		
+		private void buildString(StringBuilder b) {
+			if (level > 0) {
+				for (int i = 0; i < level; i++) {
+					b.append("#");
+				}
+				b.append(" ").append(label);
+				if (location != null) {
+					b.append(" [").append(location.toString()).append("]");
+				}
+				b.append("\n");
+			}
+			for (EntryImpl child: children) {
+				child.buildString(b);
+			}
 		}
 		
 		private EntryImpl appendChild(EntryImpl entry) {

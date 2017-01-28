@@ -20,6 +20,7 @@ public class StreamContentFactory {
 	
 	public StreamContentFactory() {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setNamespaceAware(true);
 		try {
 			this.xmlDocumentBuilder = factory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {

@@ -3,6 +3,8 @@ package com.github.i49.spine.epub;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,6 +35,8 @@ public class Epub3Writer implements PublicationWriter {
 
 	private final Transformer transformer;
 	private final Archiver archiver;
+	private final List<ContentProcessor> processors;
+	private TocBuilder tocBuilder;
 	
 	private final DocumentBuilder documentBuilder;
 	
@@ -42,20 +46,27 @@ public class Epub3Writer implements PublicationWriter {
 		this.documentBuilder = createDocumentBuilder();
 		this.transformer = createTransformer();
 		this.archiver = new ZipArchiver(stream);
+		this.processors = new ArrayList<>();
 	}
 
 	@Override
 	public void write(Publication pub) throws Exception {
-		writeMimeType();
-		writeContainerXml();
-		writePackageDocument(pub);
-		writeAllResources(pub);
-		buildToc(pub);
+		this.tocBuilder = new TocBuilder();
+		addProcessor(this.tocBuilder);
+		writeAll(pub);
 	}
 
 	@Override
 	public void close() throws IOException {
 		this.archiver.close();
+	}
+	
+	private void writeAll(Publication pub) throws Exception {
+		writeMimeType();
+		writeContainerXml();
+		writePackageDocument(pub);
+		writeAllResources(pub);
+		Toc toc = this.tocBuilder.getToc();
 	}
 	
 	private void writeMimeType() throws IOException {
@@ -75,19 +86,22 @@ public class Epub3Writer implements PublicationWriter {
 		writeXmlEntry(this.packageDir + PACKAGE_DOCUMENT_NAME, doc);
 	}
 
-	private void buildToc(Publication pub) {
-		TocBuilder builder = new TocBuilder(pub);
-		Toc toc = builder.buildToc();
-	}
-	
 	private void writeAllResources(Publication publication) throws IOException {
 		for (PublicationResource resource: publication.getResources()) {
 			String entryName = this.packageDir + resource.getIdentifier().toString();
 			Content content = resource.getContent();
+			content = processContent(content);
 			if (content instanceof OctetContent) {
 				writeOctetContent(entryName, (OctetContent)content);
 			}
 		}
+	}
+	
+	private Content processContent(Content content) {
+		for (ContentProcessor processor: this.processors) {
+			content = processor.processContent(content);
+		}
+		return content;
 	}
 	
 	private void writeOctetContent(String entryName, OctetContent content) throws IOException {
@@ -119,6 +133,10 @@ public class Epub3Writer implements PublicationWriter {
 		DOMSource source = new DOMSource(doc);
 		StreamResult target = new StreamResult(stream);
 		this.transformer.transform(source, target);
+	}
+	
+	private void addProcessor(ContentProcessor processor) {
+		this.processors.add(processor);
 	}
 	
 	private static DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
