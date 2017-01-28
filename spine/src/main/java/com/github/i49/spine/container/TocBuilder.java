@@ -1,4 +1,4 @@
-package com.github.i49.spine.epub;
+package com.github.i49.spine.container;
 
 import java.net.URI;
 import java.net.URISyntaxException;

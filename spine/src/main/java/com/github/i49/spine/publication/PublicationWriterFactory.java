@@ -2,7 +2,7 @@ package com.github.i49.spine.publication;
 
 import java.io.OutputStream;
 
-import com.github.i49.spine.epub.Epub3Writer;
+import com.github.i49.spine.container.Epub3Writer;
 
 public class PublicationWriterFactory {
 
