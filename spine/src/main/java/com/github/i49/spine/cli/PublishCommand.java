@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 
-import com.github.i49.spine.generator.PublicationGenerator;
+import com.github.i49.spine.util.PublicationGenerator;
 
 public class PublishCommand extends Command {
 
