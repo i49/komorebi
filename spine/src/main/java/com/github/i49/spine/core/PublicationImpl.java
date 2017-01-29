@@ -16,7 +16,7 @@ import com.github.i49.spine.api.PublicationResource;
  */
 class PublicationImpl implements Publication {
 
-	private final Metadata metadata = new Metadata();
+	private final Metadata metadata = new MetadataImpl();
 	private final Set<AuxiliaryResource> auxiliaryResources = new HashSet<>();
 	private final List<ContentDocument> contents = new ArrayList<>();
 	

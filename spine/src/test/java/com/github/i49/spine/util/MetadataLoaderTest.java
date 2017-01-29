@@ -10,6 +10,7 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
+import com.github.i49.spine.api.Epub;
 import com.github.i49.spine.api.Metadata;
 import com.github.i49.spine.util.MetadataLoader;
 
@@ -17,7 +18,7 @@ public class MetadataLoaderTest {
 
 	@Test
 	public void loadNormal() throws IOException {
-		Metadata m = new Metadata();
+		Metadata m = Epub.createPublication().getMetadata();
 		try (InputStream s = getClass().getResourceAsStream("metadata.yaml")) {
 			MetadataLoader loader = MetadataLoader.from(s);
 			loader.load(m);
